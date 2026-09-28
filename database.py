@@ -5,7 +5,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 
 # قراءة رابط قاعدة البيانات من منصة Render أو استخدام SQLite كخيار احتياطي
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./poultry_farm.db")
-
+DB_PATH = os.getenv("DATABASE_URL", "poultry_farm1.db")
 # تعديل الرابط إذا كان يبدأ بـ postgres:// (يتطلبه SQLAlchemy)
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
