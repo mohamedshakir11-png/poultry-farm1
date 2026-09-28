@@ -15,8 +15,7 @@ from database import (
     FarmTransaction,
     DailyFeedLog,
     DailyLog,
-    VaccineLog,
-    DB_PATH
+    VaccineLog
 )
 
 Base.metadata.create_all(bind=engine)
