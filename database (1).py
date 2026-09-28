@@ -3,13 +3,18 @@ from datetime import datetime
 from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "poultry_farm.db")
-DATABASE_URL = f"sqlite:///{DB_PATH}"
+# قراءة رابط قاعدة البيانات من منصة Render أو استخدام SQLite كخيار احتياطي
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./poultry_farm.db")
 
-engine = create_engine(
-    DATABASE_URL, 
-    connect_args={"check_same_thread": False}
-)
+# تعديل الرابط إذا كان يبدأ بـ postgres:// (يتطلبه SQLAlchemy)
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+engine_kwargs = {}
+if "sqlite" in DATABASE_URL:
+    engine_kwargs["connect_args"] = {"check_same_thread": False}
+
+engine = create_engine(DATABASE_URL, **engine_kwargs)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -44,7 +49,7 @@ class DailyFeedLog(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     batch_id = Column(Integer, ForeignKey("broiler_batches.id"), nullable=False)
-    feed_type = Column(String, default="بادي")  # ماسكر، بادي، نامي، ناهي
+    feed_type = Column(String, default="بادي")
     bags_consumed = Column(Float, default=0.0)
     bag_price = Column(Float, default=0.0)
     log_date = Column(DateTime, default=datetime.now)
@@ -78,4 +83,4 @@ def get_db():
     try:
         yield db
     finally:
-        db.close() 
+        db.close()
